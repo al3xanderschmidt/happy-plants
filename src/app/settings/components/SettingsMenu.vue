@@ -1,43 +1,78 @@
 <template>
-  <ul>
-    <li v-for="(item, index) in menu" :key="index">
-      <router-link :to="{ name: item.name }">
-        <span>{{ item.label }}</span>
-        <feather-arrow-right />
-      </router-link>
-    </li>
-    <li class="menu-version">
-      <span>Version</span><span>{{ version }}</span>
-    </li>
-  </ul>
+  <div class="settings-menu">
+    <ul class="menu-main">
+      <li v-for="(item, index) in menu" :key="index">
+        <router-link :to="{ name: item.name }">
+          <span>{{ item.label }}</span>
+          <feather-arrow-right />
+        </router-link>
+      </li>
+      <li class="menu-version">
+        <span>Version</span><span>{{ version }}</span>
+      </li>
+    </ul>
+
+    <ul class="menu-theme">
+      <li v-for="item in themes"
+        :key="item.type"
+        :class="{ 'selected': isActiveTheme(item.type) }">
+        <button type="button" @click="onChangeTheme">
+          {{ item.label }}
+        </button>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
   import pkg from '#/package.json'
+  import { mapState } from 'vuex'
 
   export default {
     name: 'SettingsMenu',
 
     components: {
       'feather-arrow-right': () =>
-          import('vue-feather-icon/components/arrow-right' /* webpackChunkName: "settings" */)
+        import('vue-feather-icon/components/arrow-right' /* webpackChunkName: "settings" */)
     },
 
     data () {
       return {
         version: pkg.version,
+        themes: [
+          { type: 'light', label: 'Light' },
+          { type: 'dark', label: 'Dark' }
+        ],
         menu: [
           { label: 'Tags', name: 'SettingsTags' },
           { label: 'Plant Data', name: 'SettingsData' },
           { label: 'About', name: 'SettingsAbout' }
         ]
       }
+    },
+
+    computed: {
+      ...mapState({
+        theme: state => state.settings.theme
+      })
+    },
+
+    methods: {
+      onChangeTheme () {
+        console.log('change theme')
+      },
+      isActiveTheme (type) {
+        return (
+          type === this.theme ||
+          (type === 'light' && this.theme === undefined)
+        )
+      }
     }
   }
 </script>
 
 <style lang="postcss" scoped>
-  ul li {
+  .menu-main li {
     display: flex;
     align-items: center;
 
@@ -78,5 +113,11 @@
     & svg {
       transform: scale(0.8);
     }
+  }
+
+  .menu-theme {
+    display: flex;
+    justify-content: center;
+    list-style: none;
   }
 </style>
